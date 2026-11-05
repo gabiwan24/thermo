@@ -3,17 +3,29 @@ const frame = document.createElement('canvas');
 frame.width = 1920; frame.height = 1080;
 const context = frame.getContext('2d');
 let time = 0;
+let facing = 'environment';
 function paint() {
   const gradient = context.createLinearGradient(0, 0, 1920, 1080);
   gradient.addColorStop(0, '#fff'); gradient.addColorStop(1, '#222');
   context.fillStyle = gradient; context.fillRect(0, 0, 1920, 1080);
   context.fillStyle = '#fff'; context.beginPath(); context.arc(1450, 340, 180, 0, Math.PI * 2); context.fill();
   context.fillStyle = '#111'; context.fillRect(180 + Math.sin(time / 40) * 60, 350, 400, 500);
-  context.font = 'bold 100px monospace'; context.fillText('LIVE / TEST', 650, 850);
+  context.font = 'bold 100px monospace'; context.fillText(facing === 'user' ? 'SELFIE / TEST' : 'LIVE / TEST', 650, 850);
   time++;
   requestAnimationFrame(paint);
 }
 paint();
 Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: {
-  getUserMedia: async () => frame.captureStream(15),
+  getUserMedia: async constraints => {
+    const requested = constraints.video.facingMode;
+    const nextFacing = requested.exact || requested.ideal;
+    if (nextFacing === 'user' && new URLSearchParams(location.search).has('rear-only')) throw new DOMException('No front camera', 'OverconstrainedError');
+    facing = nextFacing;
+    return frame.captureStream(15);
+  },
+} });
+const bluetoothTest = new URLSearchParams(location.search).get('ble');
+if (bluetoothTest === 'off') Object.defineProperty(navigator, 'bluetooth', { configurable:true, value:undefined });
+if (bluetoothTest === 'error') Object.defineProperty(navigator, 'bluetooth', { configurable:true, value: {
+  requestDevice: async () => { throw new DOMException('Simulierter Verbindungsfehler', 'NetworkError'); },
 } });

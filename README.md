@@ -1,6 +1,14 @@
 # Papier
 
+Nach jedem Foto- oder Textdruck folgen 7 mm Papier-Vorschub als Abreißrand. Die App rechnet die Strecke mit der Auflösung des gewählten Modells um: 56 Druckpunkte bei 203 dpi, 83 bei 300 dpi. Auch der M02-Druckpfad übernimmt diesen Wert.
+
+UI/UX-Prüfung mit nachvollziehbaren Journeys und Grenzen: [UX_AUDIT.md](UX_AUDIT.md).
+
+Textentwurf, gewähltes Modell und Bearbeitungseinstellungen werden lokal im Browser gespeichert. Fotos bleiben nur in der Sitzung. `preferences.js` wird zusammen mit den übrigen App-Modulen für Hosting benötigt. Der Druckbutton führt bei fehlender Verbindung direkt zum Systemmenü; gedruckt wird erst nach einem weiteren expliziten Druckbefehl.
+
 ## Live-Kamera
+
+„Selfie“ wechselt zur Frontkamera, „Rückkamera“ zurück. Der vorherige Stream wird vor dem Wechsel gestoppt. Bilddrehung, Helligkeit, Kontrast und Raster bleiben erhalten. Eine nicht verfügbare Kamera wird gemeldet und die vorherige Kamera erneut geöffnet. Vorschau und Druck bleiben ungespiegelt, damit der Ausdruck der Vorschau entspricht.
 
 Das leicht transparente weiße Kamera-Overlay startet eingeklappt. „Regler“ öffnet und schließt Helligkeit, Kontrast und Rasterauswahl mit einer kurzen Animation. Auslösen und Drehen bleiben erreichbar. Das Bild liegt hinter dem Overlay; Scrollen bleibt möglich, Scrollbalken sind unsichtbar. Bei reduzierten Bewegungen wird die Animation deaktiviert.
 
@@ -15,6 +23,10 @@ Die Kamera fordert die höchste vom Browser angebotene Stream-Auflösung an und 
 Das Manifest setzt Hochformat für die installierte Web-App. Eine Browser-Orientierungssperre wird versucht; auf mobilen Geräten im Querformat verhindert ein Hochformat-Hinweis die Bedienung. Das Bild selbst kann unabhängig davon gedreht werden. Kamera und Animationsschleife werden beim Schließen und Hintergrundwechsel gestoppt. Für Hosting zusätzlich `photo.js` und `manifest.webmanifest` bereitstellen. Reale Android-Kamera und Drucker sind noch zu prüfen.
 
 ## Oberfläche
+
+Die aktuelle Gestaltung verwendet eine klare Titelhierarchie, einen zusammenhängenden Bildbereich, gruppierte Kamera-/Galerie-Werkzeuge und eine weiche, abgesetzte Aktionsleiste. Der Druckerstatus ist im Kopf sichtbar und öffnet die Systemeinstellungen. Gruppierte Tonflächen ersetzen die früheren vielen Einzelrahmen; monochrome Farben und das Pixel-Logo bleiben erhalten. Orientierung: [Apple HIG – Layout](https://developer.apple.com/design/human-interface-guidelines/layout), insbesondere visuelle Hierarchie, Ausrichtung und gruppierte Steuerungselemente.
+
+Das reduzierte Layout priorisiert die randlose Vorschau. Eine kompakte Leiste unten kombiniert Foto/Text mit der Hauptaktion. PNG-Export und 1:1-Ansicht liegen im Systemmenü. „Bearbeiten“ ersetzt im Textmodus das Druckbild an derselben Stelle durch das Eingabefeld; „Fertig“ wechselt zurück. Es gibt keine doppelte große Textfläche. Pixelschrift bleibt als Akzent für Logo und Moduswahl erhalten; sonst werden gut lesbare Systemschriften verwendet. Der Dither-Hintergrund ist auf einen schmalen Streifen begrenzt.
 
 Die Vorschau steht an erster Stelle. Foto-/Textnavigation bleibt am unteren Bildschirmrand fixiert, die Bearbeitungseinstellungen sind standardmäßig eingeklappt. Druckermodell und Bluetooth-Verbindung liegen im Burger-Menü. Der Text selbst bleibt direkt editierbar; Schrift und Ausrichtung liegen unter Einstellungen.
 
@@ -60,7 +72,7 @@ Ein Foto pro Druck, volle Druckbreite und proportionale Höhe ohne Fotorand. Die
 
 Basis: https://github.com/DeepCoreSystem/myphomemo, Commit `3b28fbd106cd733bcfaf1cfa7b2e361971ca586c`.
 
-`vendor/ble.js`, `vendor/constants.js`, `vendor/printer.js` sind unveränderte Kopien aus `src/web/`. Das Repository wurde zur Nachvollziehbarkeit in `upstream/` heruntergeladen. Seine README erklärt MIT-Lizenzierung, enthält an diesem Stand aber keine LICENSE-Datei. Vor einer öffentlichen Weitergabe sollten Lizenztext und Copyright-Hinweise beim Projekt geklärt werden.
+`vendor/ble.js`, `vendor/constants.js`, `vendor/printer.js` stammen aus `src/web/`. In `ble.js` wurde die Verfügbarkeitsprüfung korrigiert: Entscheidend ist eine nutzbare `requestDevice`-Methode. Die übrigen Treiberdateien sind unverändert. Das Basis-Repository liegt lokal in `upstream/` und ist vom Upload ausgeschlossen. Seine README erklärt MIT-Lizenzierung, enthält an diesem Stand aber keine LICENSE-Datei; Lizenztext und Copyright-Hinweise sollten mit dem Projekt geklärt werden.
 
 Die eigene Oberfläche und Bildverarbeitung liegen in index.html, style.css, app.js und image.js. Der lokale Server gibt nur benötigte App-Dateien frei, keine Repository-Metadaten oder Tests.
 

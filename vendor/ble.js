@@ -58,7 +58,7 @@ export class BLETransport {
   }
 
   static isAvailable() {
-    return 'bluetooth' in navigator;
+    return typeof navigator.bluetooth?.requestDevice === 'function';
   }
 
   /**

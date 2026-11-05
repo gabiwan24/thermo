@@ -716,7 +716,7 @@ export async function print(transport, rasterData, options = {}) {
     // D-series (D30, D110, etc.)
     await printDSeries(transport, data, widthBytes, heightLines, onProgress, density);
   } else if (isM02 && isBLE) {
-    await printM02(transport, data, widthBytes, heightLines, density, onProgress);
+    await printM02(transport, data, widthBytes, heightLines, density, onProgress, options.feed ?? 8);
   } else if (isM110 && isBLE) {
     // M110/M110S/M120 uses phomemo-tools protocol
     await printM110(transport, data, widthBytes, heightLines, density, onProgress);
@@ -829,9 +829,9 @@ async function printP12(transport, data, widthBytes, heightLines, onProgress) {
 
 /**
  * Print via BLE for M02-series printers
- * M02 uses a special prefix and minimal/no feed (continuous paper)
+ * M02 uses a special prefix and configurable feed on continuous paper.
  */
-async function printM02(transport, data, widthBytes, heightLines, density, onProgress) {
+async function printM02(transport, data, widthBytes, heightLines, density, onProgress, feed) {
   console.log('Using M02-series protocol...');
 
   // M02 requires a special prefix before commands
@@ -869,11 +869,10 @@ async function printM02(transport, data, widthBytes, heightLines, density, onPro
     }
   }
 
-  // M02 uses continuous paper - minimal feed just to clear print head
-  // Too much feed wastes paper on continuous rolls
+  // Respect the requested tear-off margin on continuous paper.
   await transport.delay(300);
-  console.log('Sending minimal feed (8 dots for continuous paper)...');
-  await transport.send(CMD.FEED(8));
+  console.log(`Sending feed (${feed} dots for continuous paper)...`);
+  await transport.send(CMD.FEED(feed));
   await transport.delay(500);
 
   console.log('Print complete!');

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { monochrome, PATTERNS } from '../image.js';
-import { print, getPrinterWidthBytes } from '../vendor/printer.js';
+import { print, getPrinterWidthBytes, getPrinterDpi } from '../vendor/printer.js';
 
 test('packt schwarze Pixel MSB-first und zeigt exakt dieselben Punkte', () => {
   const input = new Uint8ClampedArray(16 * 4);
@@ -80,4 +80,17 @@ test('T02-Treiber sendet Header, unverändertes Raster und Vorschub; Abbruch wir
   assert.deepEqual(writes.at(-1), [0x1b, 0x4a, 32]);
   assert.equal(progress.at(-1), 100);
   await assert.rejects(print({ send: async () => { throw new Error('Disconnected'); } }, raster, { isBLE: true, printerModel: 't02' }), /Disconnected/);
+});
+
+test('Alle auswählbaren Druckermodelle senden 7 mm Vorschub nach den Bilddaten', async () => {
+  for (const [model, expectedDots] of [['t02', 56], ['m02', 56], ['m02-pro', 83], ['m260', 56]]) {
+    const writes = [];
+    const transport = { send: async bytes => writes.push([...bytes]), delay: async () => {} };
+    const widthBytes = getPrinterWidthBytes('', model);
+    const data = new Uint8Array(widthBytes).fill(0xaa);
+    const feed = Math.round(7 * getPrinterDpi('', model) / 25.4);
+    await print(transport, { data, widthBytes, heightLines: 1 }, { isBLE: true, printerModel: model, feed });
+    assert.deepEqual(writes.at(-2), [...data], model);
+    assert.deepEqual(writes.at(-1), [0x1b, 0x4a, expectedDots], model);
+  }
 });
