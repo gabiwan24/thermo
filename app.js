@@ -53,9 +53,8 @@ function update() {
   const connected = transport.isConnected();
   $('connect').textContent = connected ? 'Trennen' : 'Verbinden';
   $('connect').title = connected ? transport.device.name || 'Drucker' : '';
-  $('connection-chip').textContent = connected ? 'Verbunden' : 'Offline';
-  $('connection-chip').classList.toggle('connected', connected);
-  $('connection-chip').setAttribute('aria-label', connected ? 'Drucker verbunden, Einstellungen öffnen' : 'Drucker nicht verbunden, Einstellungen öffnen');
+  $('menu-open').classList.toggle('connected', connected);
+  $('menu-open').setAttribute('aria-label', connected ? 'Systemeinstellungen, Drucker verbunden' : 'Systemeinstellungen, Drucker nicht verbunden');
   $('connect').classList.toggle('connected', connected);
   $('connect').disabled = busy || !window.isSecureContext || !BLETransport.isAvailable();
   $('print').disabled = busy || loadingImage || !raster || (!connected && !BLETransport.isAvailable());
@@ -65,8 +64,7 @@ function update() {
   $('connect').setAttribute('aria-busy', String(busy));
   $('print').setAttribute('aria-busy', String(busy || loadingImage));
   $('empty-label').textContent = invalidText ? 'Text prüfen' : contentMode === 'text' ? 'Kein Text' : 'Kein Bild';
-  $('empty-action').textContent = contentMode === 'text' ? 'Text schreiben' : 'Bild wählen';
-  $('empty-action').disabled = busy || loadingImage;
+  $('settings-open').disabled = busy;
   $('edit-text').disabled = busy;
   $('download').disabled = busy || loadingImage || !raster;
   for (const id of ['choose', 'camera', 'mode', 'brightness', 'contrast', 'border', 'model', 'demo', 'detail']) $(id).disabled = busy;
@@ -134,7 +132,6 @@ function setContentMode(mode) {
   if (busy) return;
   status('');
   contentMode = mode;
-  $('content-title').textContent = mode === 'text' ? 'Textetikett' : 'Foto';
   document.querySelector('.app-shell').classList.toggle('text-mode', mode === 'text');
   $('photo-mode').setAttribute('aria-pressed', String(mode === 'photo'));
   $('text-mode').setAttribute('aria-pressed', String(mode === 'text'));
@@ -142,6 +139,7 @@ function setContentMode(mode) {
   $('text-settings').hidden = mode !== 'text';
   document.querySelector('.sources').hidden = mode === 'text';
   $('comparison').hidden = mode === 'text';
+  $('compare-open').hidden = mode === 'text';
   $('mode').closest('label').hidden = mode === 'text';
   $('brightness').closest('label').hidden = mode === 'text';
   $('contrast').closest('label').hidden = mode === 'text';
@@ -167,13 +165,13 @@ $('edit-text').onclick = () => {
   if (editingText) $('label-text').focus();
   else { $('label-text').blur(); render(); }
 };
-$('empty-action').onclick = () => {
-  if (contentMode === 'photo') $('file').click();
-  else { setTextEditing(true); $('label-text').focus(); }
-};
 $('menu-open').onclick = () => { pendingPrintConnection = false; $('system-status').textContent = ''; $('system-menu').showModal(); };
-$('connection-chip').onclick = () => $('menu-open').click();
 $('menu-close').onclick = () => $('system-menu').close();
+$('settings-open').onclick = () => { $('main-settings').showModal(); scheduleRender(); };
+$('settings-close').onclick = () => $('main-settings').close();
+$('compare-open').onclick = () => { $('main-settings').close(); $('comparison').showModal(); scheduleRender(); };
+$('compare-close').onclick = () => $('comparison').close();
+$('comparison').addEventListener('close', () => { if (contentMode === 'photo') $('main-settings').showModal(); });
 for (const id of ['label-text', 'text-font', 'text-size', 'text-align', 'text-bold']) $(id).addEventListener('input', scheduleRender);
 function render() {
   $('brightness-value').value = $('brightness').value;
@@ -184,7 +182,7 @@ function render() {
   let original;
   try { original = drawPhoto(preview, source, { width, rotation }); }
   catch (error) { raster = null; preview.hidden = true; $('empty').hidden = false; status(error.message, true); update(); return; }
-  const compareVisible = $('main-settings').open && $('comparison').querySelector('details').open;
+  const compareVisible = $('comparison').open;
   for (const { pattern, canvas } of cards) {
     if (!compareVisible && pattern.id !== $('mode').value) continue;
     const result = monochrome(original, width, preview.height, { brightness: Number($('brightness').value), contrast: Number($('contrast').value), mode: pattern.id });
@@ -380,7 +378,6 @@ $('reset').onclick = () => {
   rotation = 0; $('brightness').value = '0'; $('contrast').value = '0'; $('mode').value = 'dither'; $('border').checked = true; savePreferences(); render();
 };
 for (const id of ['brightness', 'contrast', 'mode', 'border', 'model', 'detail']) $(id).addEventListener('input', scheduleRender);
-for (const details of [$('main-settings'), $('comparison').querySelector('details')]) details.addEventListener('toggle', () => { if (details.open) scheduleRender(); });
 transport.onDisconnect = () => { update(); status(busy ? 'Verbindung abgebrochen. Der Druck kann unvollständig sein.' : 'Drucker getrennt.', busy); };
 $('connect').onclick = async () => {
   if (busy) return;
