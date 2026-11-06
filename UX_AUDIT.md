@@ -1,5 +1,7 @@
 # UI/UX-Prüfung · 25. Oktober 2026
 
+Korrektur vom 6. November 2026 nach Hardware-Rückmeldung: Der Nachlauf beträgt jetzt 13 mm (6 mm Abrissmechanismus + 7 mm verbleibender Rand). Die Protokolltests für die vier auswählbaren Modelle wurden entsprechend angepasst. Die tatsächliche Papierstrecke der Korrektur ist noch am Gerät zu prüfen.
+
 Ergänzung vom 5. November 2026: Selfie-/Rückkamerawechsel im Browser mit synthetischen Streams geprüft. Fehlt die Frontkamera, wird die Rückkamera wieder geöffnet und eine Meldung angezeigt. Die Druckpfade der vier auswählbaren Modelle sind für 7 mm Vortrieb getestet; 18 automatisierte Tests bestehen. Reale Android-Kameras und Papierausgabe sind weiterhin ungeprüft.
 
 Geprüft wurden echte Bedienabläufe im Browser, schmale Viewports mit 320 und 390 CSS-Pixeln, synthetische Kamera und simulierte Bluetooth-Fehler. Maßstab: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), insbesondere Reflow (1.4.10), sichtbarer Fokus (2.4.11), Zielgrößen (2.5.8), Fehleridentifikation (3.3.1) und Statusmeldungen (4.1.3). Für Touch-Bedienung wurden überwiegend mindestens 44 px große Ziele verwendet. Keine formale Konformitätszertifizierung.

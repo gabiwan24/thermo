@@ -404,7 +404,8 @@ $('print').onclick = async () => {
   if (!transport.isConnected()) { pendingPrintConnection = true; $('system-status').textContent = ''; $('system-menu').showModal(); return; }
   busy = true; update();
   try {
-    const feed = Math.round(7 * getPrinterDpi(transport.device.name, $('model').value) / 25.4);
+    // 6 mm to clear the tear bar, then 7 mm of blank paper after the image.
+    const feed = Math.round((6 + 7) * getPrinterDpi(transport.device.name, $('model').value) / 25.4);
     await print(transport, raster, { isBLE: true, deviceName: transport.device.name, printerModel: $('model').value, density: 4, feed,
       onProgress: percent => status(`Bild wird an den Drucker gesendet … ${percent} %`),
     });

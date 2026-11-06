@@ -1,6 +1,6 @@
 # Papier
 
-Nach jedem Foto- oder Textdruck folgen 7 mm Papier-Vorschub als Abreißrand. Die App rechnet die Strecke mit der Auflösung des gewählten Modells um: 56 Druckpunkte bei 203 dpi, 83 bei 300 dpi. Auch der M02-Druckpfad übernimmt diesen Wert.
+Nach jedem Foto- oder Textdruck folgen 13 mm Papier-Vorschub: 6 mm für den Abstand zum Abrissmechanismus plus 7 mm verbleibender Abreißrand. Die App rechnet die Strecke mit der Auflösung des gewählten Modells um: 104 Druckpunkte bei 203 dpi, 154 bei 300 dpi. Auch der M02-Druckpfad übernimmt diesen Wert. Der Vortrieb wird nach den unveränderten Bilddaten gesendet.
 
 UI/UX-Prüfung mit nachvollziehbaren Journeys und Grenzen: [UX_AUDIT.md](UX_AUDIT.md).
 

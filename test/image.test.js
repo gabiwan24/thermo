@@ -82,13 +82,13 @@ test('T02-Treiber sendet Header, unverändertes Raster und Vorschub; Abbruch wir
   await assert.rejects(print({ send: async () => { throw new Error('Disconnected'); } }, raster, { isBLE: true, printerModel: 't02' }), /Disconnected/);
 });
 
-test('Alle auswählbaren Druckermodelle senden 7 mm Vorschub nach den Bilddaten', async () => {
-  for (const [model, expectedDots] of [['t02', 56], ['m02', 56], ['m02-pro', 83], ['m260', 56]]) {
+test('Alle auswählbaren Druckermodelle senden 13 mm Vorschub: Abrissmechanismus plus Rand', async () => {
+  for (const [model, expectedDots] of [['t02', 104], ['m02', 104], ['m02-pro', 154], ['m260', 104]]) {
     const writes = [];
     const transport = { send: async bytes => writes.push([...bytes]), delay: async () => {} };
     const widthBytes = getPrinterWidthBytes('', model);
     const data = new Uint8Array(widthBytes).fill(0xaa);
-    const feed = Math.round(7 * getPrinterDpi('', model) / 25.4);
+    const feed = Math.round((6 + 7) * getPrinterDpi('', model) / 25.4);
     await print(transport, { data, widthBytes, heightLines: 1 }, { isBLE: true, printerModel: model, feed });
     assert.deepEqual(writes.at(-2), [...data], model);
     assert.deepEqual(writes.at(-1), [0x1b, 0x4a, expectedDots], model);
